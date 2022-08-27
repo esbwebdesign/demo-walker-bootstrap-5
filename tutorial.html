@@ -1,0 +1,556 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+		<style>
+img {
+	border: 1px solid #cfd9e3;
+	margin-bottom: 16px;
+}
+
+textarea {
+	margin-bottom: 16px;
+	font-family: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+	font-size: .875em;
+	white-space: pre;
+	overflow-wrap: normal;
+	overflow-x: scroll;
+}
+
+pre {
+	font-family: SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+	font-size: .875em;
+	margin-left: 24px;
+	padding-left: 16px;
+	border-left: 2px solid #cfd9e3;
+}
+
+blockquote {
+	font-style: italic;
+	margin-left: 24px;
+	padding-left: 16px;
+	border-left: 2px solid #0d6efd;
+}
+
+.note {
+	border: 2px solid #cfd9e3;
+	margin: auto 36px;
+	padding: 8px 16px;
+	margin-bottom: 16px;
+}
+		</style>
+	</head>
+	<body>
+		<div class="container my-3">
+			<h1>Tutorial: WordPress Walker with Bootstrap 5</h1>
+			<p>If you're learning to build custom themes in WordPress, you'll probably want to create a navigation menu that the user can edit.  However, it can be a little complicated to get a WordPress custom menu to output with the right classes for Bootstrap.  This tutorial will go over that process step by step to get you up and runing with custom navigatation menu the user can controll in the WordPress admin panel, but that comes out as properly formatted Bootstrap 5.</p>
+			<h3>Prerequisites</h3>
+			<ul>
+				<li>Some HTML</li>
+				<li>General concept of Bootstrap</li>
+				<li>Working WordPress environment (if you need help, <a href="https://www.makeuseof.com/install-wordpress-locally-on-windows/">this tutorial is great</a>)</li>
+			</ul>
+			<h2>Initial Setup</h2>
+			<p>Create a basic WordPress theme.  To do this, create a new folder in <code>\wp-content\themes</code>.  Create three files inside it: <code>index.php</code>, <code>style.css</code>, and <code>functions.php</code>.</p>
+			<p>First, we'll create the HTML template that we'll want to turn into a dynamic navigation bar.</p>
+			<p>Go to the WordPress admin page and activate your theme under Appearance > Themes.</p></p>
+			<p>Next, let's create the HTML template that we'll hollow out to create our dynamic navbar.  Copy and paste this text into your <code>index.php</code> file.</p>
+<textarea readonly class="w-100" rows="10">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	</head>
+	<body>
+		<nav class="navbar navbar-expand-md navbar-light bg-light">
+			<div class="container">
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+					<div class="collapse navbar-collapse" id="navbarSupportedContent">
+						<ul class="navbar-nav ms-auto">
+							<li class="nav-item">
+								<a class="nav-link active" aria-current="page" href="#">Home</a>
+							</li>
+							<li class="nav-item ms-lg-5">
+								<a class="nav-link" href="http://www.google.com">Google</a>
+							</li>
+							<li class="nav-item dropdown ms-lg-5">
+								<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">W3 Schools</a>
+								<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+									<li><a class="dropdown-item" href="https://www.w3schools.com/html/">HTML</a></li>
+									<ul>
+										<li class="list-unstyled"><a class="dropdown-item" href="https://www.w3schools.com/html/html5_semantic_elements.asp">Semantic HTML</a></li>
+									</ul>
+									<li><a class="dropdown-item" href="https://www.w3schools.com/php/">PHP</a></li>
+								</ul>
+							</li>
+							<li class="nav-item ms-lg-5">
+								<li><a class="nav-link" href="<?php echo site_url('/about-us'); ?>">About Us</a></li>
+							</li>
+						</ul>
+					</div>
+			</div>
+		</nav>
+		<script type='text/javascript' src='//cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js' id='bootstrap-5-js'></script>
+	</body>
+</html>
+</textarea>
+			<p>Now, if you go to any page on your site, you should see something like this (when you've expanded the dropdown menu):</p>
+			<div class="text-center"><img src="images/screenshot-1.png" class="w-75" alt="Image of the navigation bar at the current stage"></div>
+			<p>Next, we'll add support for a WordPress-managed navigation bar. Add this code to your <code>functions.php</code> file:</p>
+<textarea readonly class="w-100" rows="7">
+<?php
+function theme_features() {
+	register_nav_menu('header-menu', 'Header Menu');
+}
+
+add_action('after_setup_theme', 'theme_features');
+?>
+</textarea>
+			<p>This creates a menu and makes it available with these theme.  Go to the WordPress admin panel, and under Appearance make sure you see Menus.  If you don't see it, you either need to refresh, or you've missed something in your <code>functions.php</code> file.</p>
+			<p class="note">Before we continue, if you're having trouble, you can download the code as it stands at this stage of the tutorial.  It's in the folder <em>demo_walker_theme_hc</em> (for 'hard coded') at <a href="https://github.com/esbwebdesign/demo-walker-bootstrap-5">this repository</a> on my GitHub.</p>
+			<p>Now, in the WordPress admin panel, create a page.  I made a dummy "About Us" page, but you can make whatever you want.  For this demo, our navigation bar will have a Home Page link and an About Us link, and the rest of the navigation menu options will be to external sites, so you don't need to create pages for everything in our navigation bar.</p>
+			<p>In the WordPress admin panel, under Appearance > Menus, create your menu.  In this demo, we'll use the Home Page (which is there by default), the About Us page, and some custom links.  Make sure to drag some of your links under others.  We need at least two levels for this demo.  For example, we have HTML under W3 Schools, and then Semantic HTML under HTML.</p>
+			<div class="text-center"><img src="images/screenshot-2.png" class="w-75" alt="Image of the menu management panel in WordPress"></div>
+			<p>Give your menu a name and save it.</p>
+			<p>At the top of the page, under the word <strong>Menus</strong>, click on "Manage Locations."  Select your menu and assign it to the Header Menu location.  Hit <strong>Save Changes.</strong></p>
+			<div class="text-center"><img src="images/screenshot-3.png" class="w-75" alt="Image of the menu selection panel in WordPress"></div>
+			<h2>Using a WordPress Menu</h2>
+			<p>So far, we've set everything up, but our <code>index.php</code> file isn't actually using our WordPress menu yet; it's still using our hard-coded menu.  Let's change that!</p>
+			<p>We need to leave some of the outer 'shell' of the navbar, so we're going to be getting rid of everything inside the <code>div</code> with the class of <code>collapse navbar-collapse</code>.  I would suggest copying it and pasting it into another document, because we're going to need to reference it a lot.</p>
+			<p>So, to recap, when we're done, we want WordPress to output this code:</p>
+<textarea readonly class="w-100" rows="10">
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+	<ul class="navbar-nav ms-auto">
+		<li class="nav-item">
+			<a class="nav-link active" aria-current="page" href="#">Home</a>
+		</li>
+		<li class="nav-item ms-lg-5">
+			<a class="nav-link" href="http://www.google.com">Google</a>
+		</li>
+		<li class="nav-item dropdown ms-lg-5">
+			<a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">W3 Schools</a>
+			<ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+				<li><a class="dropdown-item" href="https://www.w3schools.com/html/">HTML</a></li>
+				<ul>
+					<li class="list-unstyled"><a class="dropdown-item" href="https://www.w3schools.com/html/html5_semantic_elements.asp">Semantic HTML</a></li>
+				</ul>
+				<li><a class="dropdown-item" href="https://www.w3schools.com/php/">PHP</a></li>
+			</ul>
+		</li>
+		<li class="nav-item ms-lg-5">
+			<li><a class="nav-link" href="<?php echo site_url('/about-us'); ?>">About Us</a></li>
+		</li>
+	</ul>
+</div>
+</textarea>
+			<p>And our current HTML will be:</p>
+<textarea readonly class="w-100" rows="10">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	</head>
+	<body>
+		<nav class="navbar navbar-expand-md navbar-light bg-light">
+			<div class="container">
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+					<?php
+					?>
+			</div>
+		</nav>
+<p>	
+</p>
+		<script type='text/javascript' src='//cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js' id='bootstrap-5-js'></script>
+	</body>
+</html>
+</textarea>
+			<p>Note the PHP tags below the closing <code>button</code> tag.  From here out, when referring to the code we're putting in <code>index.php</code>, I'll just be pasting the parts that go inside the PHP tags.</p>
+			<h2>Adding a WordPress Menu to Index.php</h2>
+			<p>To start out with, let's just add our menu with the WordPress <code>wp_nav_menu</code> function:</p>
+<pre>wp_nav_menu(array(
+	'theme_location' => 'header-menu'
+));</pre>
+			<p>This simply calls the menu created in <code>functions.php</code>.  The value for the <code>theme_location</code> key needs to be the first value from the <code>register_nav_menu</code> function in your <code>functions.php</code> file.  So, in my case, I'll use <code>'header-menu'</code>.</p>
+			<div class="note">
+				<p>You can name your menu whatever you want; you just have to make sure that you use the same name when you call your menu.</p>
+				<p>For example, if your <code>functions.php</code> file contains the line:</p>
+					<pre>register_nav_menu('pizza-menu', 'Header Menu');</pre>
+				<p>Then your <code>index.php</code> file will need to contain:</p>
+<pre>wp_nav_menu(array(
+	'theme_location' => 'pizza-menu'
+));</pre>
+			</div>
+			<p>When you refresh the page, you should see an unordered list, based on your menu bar, which should look something like this:</p>
+			<div class="text-center"><img src="images/screenshot-4.png" class="w-75" alt="Image of an unordered list of link in the menu bar"></div>
+			<p>At this point, WordPress is sending your menu to the screen, but not in a terriably useful way.  Let's change that.</p>
+			<h3>Adding Some Class(es)</h3>
+			<p>First, we're going to do what we can with <code>wp_nav_menu</code>.  WordPress has a full list of parameters that we can play with for this function <a href="https://developer.wordpress.org/reference/functions/wp_nav_menu/">here</a>, and I'd encourage you to look over it.  But for now, here's the ones we're interested in:</p>
+			<table class="table">
+				<thead class="table-light">
+					<tr>
+						<th width="33%">Parameter</th>
+						<th width="67%">Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td width="33%" ><code>container</code></td>
+						<td width="67%">This controls whether to wrap the navigation menu inside any HTML tags, and if so, what tag to use.  This will control the outermost layer of the menu.</td>
+					</tr>
+					<tr>
+						<td width="33%" ><code>container-class</code></td>
+						<td width="67%">This controls whether to add a class to the container that wraps the entire navigation menu.</td>
+					</tr>
+					<tr>
+						<td width="33%" ><code>container-class</code></td>
+						<td width="67%">This controls whether to add an ID to the container that wraps the entire navigation menu.</td>
+					</tr>
+					<tr>
+						<td width="33%" ><code>items_wrap</code></td>
+						<td width="67%">Determines how to print out the items inside the navigation bar.  This one is a little confusing, and we'll come back to it.</td>
+					</tr>
+				</tbody>
+			</table>
+			<p>Let's start working on what we need to apply here.  Look at the section of HTML you removed earlier.  The topmost line is:</p>
+			<pre>&lt;div class="collapse navbar-collapse" id="navbarSupportedContent"&gt;</pre>
+			<p>So, with that in mind, the first few parameters are pretty easy.  We'll add parameters like this (blue lines are added code):</p>
+<pre>wp_nav_menu(array(
+	'theme_location' => 'header-menu',
+	<span class="text-primary">'container' => 'div',
+	'container_class' => 'collapse navbar-collapse',
+	'container_id' => 'navbarSupportedContent'</span>
+));</pre>
+			<p>This means that the navigation menu will be wrapped in a <code>div</code> with a class of <code>collapse navbar-collapse</code> and an ID of <code>navbarSupportedContent</code>.</p>
+			<h4>Items_Wrap</h4>
+			<p>Earlier, I said that we'd come back to <code>items_wrap</code>.  Time to do that now.  So, the <a href="https://developer.wordpress.org/reference/functions/wp_nav_menu/">official documentation</a> says:</p>
+			<blockquote>How the list items should be wrapped. Uses printf() format with numbered placeholders. Default is a ul with an id and class.</blockquote>
+			<p>This is not terribly enlightening if you're learning this for the first time, but to make a long story short, <code>items_wrap</code> has three placeholders available (<a href="https://wordpress.stackexchange.com/questions/19245/any-docs-for-wp-nav-menus-items-wrap-argument">more info here</a>):</p>
+			<ul>
+				<li><code>%1$s</code>, for the built-in IDs that WordPress generates for menu items</li>
+				<li><code>%2$s</code>, for the built-in classes that WordPress generates for menu items</li>
+				<li><code>%3$s</code>, for the actual list item (e.g. the li tag)</li>
+			</ul>
+			<p>Because we're using Bootstrap, we're just going to be using the third placeholder, so our parameter will look like this:</p>
+			<pre>'items_wrap' => '&lt;ul class="navbar-nav ms-auto"&gt;%3$s</ul>'</pre>
+			<p>Add this below the <code>container_id</code> parameter.  <strong>Common Error:</strong> Remember, you  need a comma between each of the parameters, so when you add this parameter, you need to also add a comma after <code>'container_id' => 'navbarSupportedContent'</code>.</p>
+			<p>If you've followed along to this point, your page should look something like this:</p>
+			<div class="text-center"><img src="images/screenshot-5.png" class="w-75" alt="Image of the navigation bar with links squished together but on the right side"></div>
+			<p>The navigation elements are on the right side of the screen, but they aren't formatted correctly.  To fix this, we're going to use a walker.</p>
+			<p>As a recap, before we continue, your code should currently look like this:</p>
+			<div class="row">
+				<div class="col-12 col-md-6">
+					<p><em>Code for </em><code>index.php</code></p>
+<textarea readonly class="w-100" rows="5">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	</head>
+	<body>
+		<nav class="navbar navbar-expand-md navbar-light bg-light">
+			<div class="container">
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+					<?php
+					wp_nav_menu(array(
+						'theme_location' => 'header-menu',
+						'container' => 'div',
+						'container_class' => 'collapse navbar-collapse',
+						'container_id' => 'navbarSupportedContent',
+						'items_wrap' => '<ul class="navbar-nav ms-auto">%3$s</ul>'
+					));
+					?>
+			</div>
+		</nav>
+<p>
+</p>
+		<script type='text/javascript' src='//cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js' id='bootstrap-5-js'></script>
+	</body>
+</html>
+</textarea>
+				</div>
+				<div class="col-12 col-md-6">
+					<p><em>Code for </em><code>functions.php</code></p>
+<textarea readonly class="w-100" rows="5">
+<?php
+function theme_features() {
+	register_nav_menu('header-menu', 'Header Menu');
+}
+
+add_action('after_setup_theme', 'theme_features');
+?>
+</textarea>
+				</div>
+			</div>
+			<h2>Creating a Walker</h2>
+			<p>In WordPress, a walker is a special tool that helps handle items that are in a hierarchy.  In this case, our navigation bar has a hierarchy, with "Home", "Google, "W3 Schools", and "About Us" on one level, "HTML" and "PHP" down one level below "W3 Schools", and "Semantic HTML" down one level below "HTML" and two below "W3 Schools".</p>
+			<p>In order to get the Bootstrap classes we need, we'll need to output different classes depending on where a particular item is in this hierarchy, and we need a walker to do that.  Let's jump over to <code>functions.php</code>.  Add the code:</p>
+<pre>class bootstrap_walker extends Walker_Nav_Menu {
+}
+</pre>
+			<p>And in your <code>index.php</code> file, let's add one more parameter to <code>wp_nav_menu</code>:</p>
+			<pre>'walker' => new bootstrap_walker()</pre>
+			<p class="note">You can use any name instead of <code>bootstrap_walker</code>.  Just make sure you use the same name in <code>functions.php</code> and <code>index.php</code>.</p>
+			<h3>Walker Concepts</h3>
+			<p>Think of a walker as a subway line.  It has a certain number of stops on a predetermined path, and at every stop, it will do something.</p>
+			<p>The subway line is our hierarchy of links.  Every link in the hierarchy is a stop on that line, which is called a <strong>node</strong>.  Every time the subway line makes a stop, we can have it do something, using the code in our <code>functions.php</code> file.</p>
+			<p>You can find the official documentation <a href="https://developer.wordpress.org/reference/classes/walker_nav_menu/">here</a>, but basically, <code>walker_nav_menu</code> has four built-in functions you can use to modify it.  You can think of these as instructions the subway driver has to follow at all stops.</p>
+			<table class="table">
+				<thead class="table-light">
+					<tr>
+						<th width="33%">Function</th>
+						<th width="67%">Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td width="33%" ><code>start_el</code></td>
+						<td width="67%"><p>This controls how to output each item (in this case, each <code>li</code> in the navigation menu).  By default, this will open with an <code>li</code> tag, with an ID for each menu item and a bunch of WordPress-generated classes</p>
+						<p><strong>Example:</strong><br>
+						<code>&lt;li id="menu-item-14" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-14"&gt;</code></p></td>
+					</tr>
+					<tr>
+						<td width="33%" ><code>end_el</code></td>
+						<td width="67%"><p>This controls how to close each item.  By default, this will just be a closing <code>li</code> tag.</p>
+						<p><strong>Example:</strong><br>
+						<code>&lt;/li&gt;</code></p></td></td>
+					</tr>
+					<tr>
+						<td width="33%" ><code>start_lvl</code></td>
+						<td width="67%"><p>This controls how to wrap each level <strong>after the top level</strong>.  So, in our case, not the level that contains "Home and "Google", but the level that contains "HTML" and "PHP" or the level that contains "Semantic HTML".  By default, this will open with a <code>ul</code> tag, and a WordPress-generated classes</p>
+						<p><strong>Example:</strong><br>
+						<code>&lt;ul class="sub-menu"&gt;</code></p></td>
+					</tr>
+					<tr>
+						<td width="33%" ><code>end_lvl</code></td>
+						<td width="67%"><p>This controls how to close the wrap for each level after the top level.  By default, this will just be a closing <code>ul</code> tag.</p>
+						<p><strong>Example:</strong><br>
+						<code>&lt;/ul&gt;</code></p></td>
+					</tr>
+				</tbody>
+			</table>
+			<p>In addition, each node (each 'stop' on the subway line) has a bunch of properties of its own.  You can think of these as attributes of the subway station, like its name, its location, and so on.  Conceptually, what we want to do is at every stop, check these attributes and do something based on them.</p>
+			<p>For example, we're going to need to give particular classes to menu items that have children below them in the hierarchy.</p>
+			<p>The problem is, there are a BUNCH of these attributes, and it's not that obvious what we have to work with.</p>
+			<p>In order to figure this out, there's a handy function called <code>var_dump</code>, which will spit out a bunch of information about an object.  If you run this code from your <code>functions.php</code> file:</p>
+<pre>class bootstrap_walker extends Walker_Nav_Menu {
+	function start_el(&$output, $item, $depth = 0, $args = null, $id = 0) {
+		$output .= var_dump($item);
+	}
+}</pre>
+			<p>You'll get all the information about <strong>each</strong> menu item.  This is a bit of a pain, so I've gone over the important information for each of the functions that's a part of <code>Walker_Nav_Menu</code> and indented it for easy reading.</p>
+<textarea readonly class="w-100" rows="10">
+start_el/end_el
+	$item
+	object(WP_Post)#926 (40) { 
+		["ID"]=> int(47) 
+		["post_author"]=> string(1) "1" 
+		["post_date"]=> string(19) "2022-08-18 07:45:15" 
+		["post_date_gmt"]=> string(19) "2022-08-18 07:44:50" 
+		["post_content"]=> string(1) " " 
+		["post_title"]=> string(0) "" 
+		["post_excerpt"]=> string(0) "" 
+		["post_status"]=> string(7) "publish" 
+		["comment_status"]=> string(6) "closed" 
+		["ping_status"]=> string(6) "closed" 
+		["post_password"]=> string(0) "" 
+		["post_name"]=> string(2) "47" 
+		["to_ping"]=> string(0) "" 
+		["pinged"]=> string(0) "" 
+		["post_modified"]=> string(19) "2022-08-18 07:45:15" 
+		["post_modified_gmt"]=> string(19) "2022-08-18 07:45:15" 
+		["post_content_filtered"]=> string(0) "" 
+		["post_parent"]=> int(0) ["guid"]=> string(35) "http://localhost/esbwebdesign/?p=47" 
+		["menu_order"]=> int(1) 
+		["post_type"]=> string(13) "nav_menu_item" 
+		["post_mime_type"]=> string(0) "" 
+		["comment_count"]=> string(1) "0" 
+		["filter"]=> string(3) "raw" 
+		["db_id"]=> int(47) 
+		["menu_item_parent"]=> string(1) "0" 
+		["object_id"]=> string(2) "33" 
+		["object"]=> string(4) "page" 
+		["type"]=> string(9) "post_type" 
+		["type_label"]=> string(4) "Page" 
+		["url"]=> string(30) "http://localhost/esbwebdesign/" 
+		["title"]=> string(4) "Home" 
+		["target"]=> string(0) "" 
+		["attr_title"]=> string(0) "" 
+		["description"]=> string(0) "" 
+		["classes"]=> array(9) { 
+			[0]=> string(0) "" 
+			[1]=> string(9) "menu-item" 
+			[2]=> string(24) "menu-item-type-post_type" 
+			[3]=> string(21) "menu-item-object-page" 
+			[4]=> string(14) "menu-item-home" 
+			[5]=> string(17) "current-menu-item" 
+			[6]=> string(9) "page_item" 
+			[7]=> string(12) "page-item-33" 
+			[8]=> string(17) "current_page_item" 
+		} 
+		["xfn"]=> string(0) "" 
+		["current"]=> bool(true) 
+		["current_item_ancestor"]=> bool(false) 
+		["current_item_parent"]=> bool(false) 
+	}
+
+	$args
+	object(stdClass)#912 (18) {
+		["menu"]=> object(WP_Term)#915 (10) {
+			["term_id"]=> int(11) 
+			["name"]=> string(11) "Header Menu" 
+			["slug"]=> string(11) "header-menu" 
+			["term_group"]=> int(0) 
+			["term_taxonomy_id"]=> int(11) 
+			["taxonomy"]=> string(8) "nav_menu" 
+			["description"]=> string(0) "" 
+			["parent"]=> int(0) 
+			["count"]=> int(7) 
+			["filter"]=> string(3) "raw" 
+		} 
+		["container"]=> string(3) "div" 
+		["container_class"]=> string(24) "collapse navbar-collapse" 
+		["container_id"]=> string(22) "navbarSupportedContent" 
+		["container_aria_label"]=> string(0) "" 
+		["menu_class"]=> string(4) "menu" 
+		["menu_id"]=> string(0) "" 
+		["echo"]=> bool(true) 
+		["fallback_cb"]=> string(12) "wp_page_menu" 
+		["before"]=> string(0) "" 
+		["after"]=> string(0) "" 
+		["link_before"]=> string(0) "" 
+		["link_after"]=> string(0) "" 
+		["items_wrap"]=> string(44) "%3$s" 
+		["item_spacing"]=> string(8) "preserve" 
+		["depth"]=> int(0) 
+		["walker"]=> object(top_menu_walker)#910 (4) { 
+			["tree_type"]=> array(3) { 
+				[0]=> string(9) "post_type" 
+				[1]=> string(8) "taxonomy" 
+				[2]=> string(6) "custom"
+			}
+			["db_fields"]=> array(2) { 
+				["parent"]=> string(16) "menu_item_parent" 
+				["id"]=> string(5) "db_id" 
+			} 
+			["max_pages"]=> int(1) 
+			["has_children"]=> bool(false) 
+		}
+		["theme_location"]=> string(11) "header-menu" 
+	}
+	
+start_lvl/end_lvl
+	$args
+		object(stdClass)#809 (18) {
+			["menu"]=> object(WP_Term)#832 (10) { 
+				["term_id"]=> int(3) 
+				["name"]=> string(9) "My Header" 
+				["slug"]=> string(9) "my-header" 
+				["term_group"]=> int(0) 
+				["term_taxonomy_id"]=> int(3) 
+				["taxonomy"]=> string(8) "nav_menu" 
+				["description"]=> string(0) "" 
+				["parent"]=> int(0) 
+				["count"]=> int(7) 
+				["filter"]=> string(3) "raw" 
+			} 
+			["container"]=> string(3) "div" 
+			["container_class"]=> string(24) "collapse navbar-collapse" 
+			["container_id"]=> string(22) "navbarSupportedContent" 
+			["container_aria_label"]=> string(0) "" 
+			["menu_class"]=> string(4) "menu" 
+			["menu_id"]=> string(0) "" 
+			["echo"]=> bool(true) 
+			["fallback_cb"]=> string(12) "wp_page_menu" 
+			["before"]=> string(0) "" 
+			["after"]=> string(0) "" 
+			["link_before"]=> string(0) "" 
+			["link_after"]=> string(0) "" 
+			["items_wrap"]=> string(40) "%3$s" 
+			["item_spacing"]=> string(8) "preserve" 
+			["depth"]=> int(0) 
+			["walker"]=> object(bootstrap_walker)#844 (4) { 
+				["tree_type"]=> array(3) { 
+					[0]=> string(9) "post_type" 
+					[1]=> string(8) "taxonomy" 
+					[2]=> string(6) "custom"
+				} 
+				["db_fields"]=> array(2) { 
+					["parent"]=> string(16) "menu_item_parent" 
+					["id"]=> string(5) "db_id"
+				} 
+				["max_pages"]=> int(1) 
+				["has_children"]=> bool(true) 
+			} 
+		["theme_location"]=> string(11) "header-menu"
+	}
+</textarea>
+			<p>What the heck is this mess?</p>
+			<p>Let's do an example.  Add this code to your <code>functions.php</code> file.</p>
+<pre>class bootstrap_walker extends Walker_Nav_Menu {
+	function start_el(&$output, $item, $depth = 0, $args = null, $id = 0) {
+		$output .= '&lt;li&gt;' . 'PH: ' . $args->walker->has_children;
+	}
+}</pre>
+			<p>Let's walk thorugh this step-by-step:</p>
+			<ol><li>Use the function <code>start_el</code>, which will walk through every menu item</li>
+			<li>Take the current output variable and add (<code>.=</code>) an <code>&lt;li&gt;</code> tag...</li>
+			<li>Add some placeholder text (PH: ) so that you can see what's going on...</li>
+			<li>Go into the <code>$args</code> variable of the current menu item, then into the <code>walker</code> key, and then into the <code>has_children</code> key and show that value</li></ol>
+			<p>You should see something like this:</p>
+			<div class="text-center"><img src="images/screenshot-6.png" class="w-75" alt="Image of the navigation bar, PH for each menu item, accompanied by a 1 for items that have subordinate menu items"></div>
+			<p>It looks a little funny, but you can see the placeholder text 'PH: ' for every item, but then any item that has chldren also gets a 1 (which also means true).</p>
+			<p>With this in mind, we now have the tools to target any property of the menu items and sub-menus.  Let's start applying some classes.</p>
+			<h3>A Logic Puzzle</h3>
+			<p>Looking at our HTML, most <code>li</code> tags and <code>a</code> tags get classes, many of them more than one.  Some tags also need to get an ID.  Most list items need the class <code>nav-item</code> and most anchor tags need the class <code>nav-link</code>, so let's create an array of classes for list items and anchor tags, and add those entries in by default.</p>
+			<h4>Inside start_el</h4>
+<pre>class bootstrap_walker extends Walker_Nav_Menu {
+	function start_el(&$output, $item, $depth = 0, $args = null, $id = 0) {
+		$li_class[] = 'nav-item';
+		$a_class[] = 'nav-link';
+	}
+}</pre>
+			<p>In addition, let's make the starting anchor tag.</p>
+			<pre>$link_tag = '&lt;a class="' . implode(' ', $a_class) . '" href="' . $item-&gt;url . '"&gt;';</pre>
+			<p>This will have the opening <code>a</code> tag, then a list of all classes from the <code>$a_class</code> array, separated by a space. (The <code>implode</code> function turns an array into a delimited string.  The first argument say what should sepearate the items in that array when you turn it into a string.  In this case, we want it to be  a space.)  Then, we start the href attribute, and finally, we'll ask it for the URL of the current menu item.</p>
+			<p>Finally, let's output each list item to the screen:</p>
+			<pre>$output .= '&lt;li class="' . implode(' ', $li_class) . '"&gt;' . $link_tag . $item-&gt;title . '&lt;/a&gt;';</pre>
+			<p>This will output an <code>li</code> tag, then a list of classes from the <code>$li_class</code> array, and then the anchor tag we just created.  We don't need to close the <code>li</code> tag, because <code>Walker_Nav_Menu</code> does that by default.</p>
+			<p>Your navbar should now look like this:</p>
+			<div class="text-center"><img src="images/screenshot-7.png" class="w-75" alt="Image of the navigation bar showing the correct text for each menu item and styled like Bootstrap menu items, but with an unordered list of sub-menu items below it"></div>
+			<p>All the links should now be clickable too.</p>
+
+<!-- <textarea readonly class="w-100" rows="10"> -->
+<!-- </textarea> -->
+		</div>
+	</body>
+</html>
+
+
+<!-- wp_nav_menu(array( -->
+	<!-- 'theme_location' => 'header-menu', -->
+	<!-- 'container' => 'div', -->
+	<!-- 'container_class' => 'collapse navbar-collapse', -->
+	<!-- 'container_id' => 'navbarSupportedContent', -->
+	<!-- 'items_wrap' => '<ul class="navbar-nav ms-auto">%3$s' . "\t\t\t\t" . '</ul>', -->
+	<!-- 'walker' => new top_menu_walker(), -->
+	<!-- 'tab_depth' => 6 -->
+<!-- )); -->
+<!-- echo "\r\n"; -->

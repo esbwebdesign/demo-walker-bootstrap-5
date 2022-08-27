@@ -1,0 +1,144 @@
+start_el/end_el
+	$item
+	object(WP_Post)#926 (40) { 
+		["ID"]=> int(47) 
+		["post_author"]=> string(1) "1" 
+		["post_date"]=> string(19) "2022-08-18 07:45:15" 
+		["post_date_gmt"]=> string(19) "2022-08-18 07:44:50" 
+		["post_content"]=> string(1) " " 
+		["post_title"]=> string(0) "" 
+		["post_excerpt"]=> string(0) "" 
+		["post_status"]=> string(7) "publish" 
+		["comment_status"]=> string(6) "closed" 
+		["ping_status"]=> string(6) "closed" 
+		["post_password"]=> string(0) "" 
+		["post_name"]=> string(2) "47" 
+		["to_ping"]=> string(0) "" 
+		["pinged"]=> string(0) "" 
+		["post_modified"]=> string(19) "2022-08-18 07:45:15" 
+		["post_modified_gmt"]=> string(19) "2022-08-18 07:45:15" 
+		["post_content_filtered"]=> string(0) "" 
+		["post_parent"]=> int(0) ["guid"]=> string(35) "http://localhost/esbwebdesign/?p=47" 
+		["menu_order"]=> int(1) 
+		["post_type"]=> string(13) "nav_menu_item" 
+		["post_mime_type"]=> string(0) "" 
+		["comment_count"]=> string(1) "0" 
+		["filter"]=> string(3) "raw" 
+		["db_id"]=> int(47) 
+		["menu_item_parent"]=> string(1) "0" 
+		["object_id"]=> string(2) "33" 
+		["object"]=> string(4) "page" 
+		["type"]=> string(9) "post_type" 
+		["type_label"]=> string(4) "Page" 
+		["url"]=> string(30) "http://localhost/esbwebdesign/" 
+		["title"]=> string(4) "Home" 
+		["target"]=> string(0) "" 
+		["attr_title"]=> string(0) "" 
+		["description"]=> string(0) "" 
+		["classes"]=> array(9) { 
+			[0]=> string(0) "" 
+			[1]=> string(9) "menu-item" 
+			[2]=> string(24) "menu-item-type-post_type" 
+			[3]=> string(21) "menu-item-object-page" 
+			[4]=> string(14) "menu-item-home" 
+			[5]=> string(17) "current-menu-item" 
+			[6]=> string(9) "page_item" 
+			[7]=> string(12) "page-item-33" 
+			[8]=> string(17) "current_page_item" 
+		} 
+		["xfn"]=> string(0) "" 
+		["current"]=> bool(true) 
+		["current_item_ancestor"]=> bool(false) 
+		["current_item_parent"]=> bool(false) 
+	}
+
+	$args
+	object(stdClass)#912 (18) {
+		["menu"]=> object(WP_Term)#915 (10) {
+			["term_id"]=> int(11) 
+			["name"]=> string(11) "Header Menu" 
+			["slug"]=> string(11) "header-menu" 
+			["term_group"]=> int(0) 
+			["term_taxonomy_id"]=> int(11) 
+			["taxonomy"]=> string(8) "nav_menu" 
+			["description"]=> string(0) "" 
+			["parent"]=> int(0) 
+			["count"]=> int(7) 
+			["filter"]=> string(3) "raw" 
+		} 
+		["container"]=> string(3) "div" 
+		["container_class"]=> string(24) "collapse navbar-collapse" 
+		["container_id"]=> string(22) "navbarSupportedContent" 
+		["container_aria_label"]=> string(0) "" 
+		["menu_class"]=> string(4) "menu" 
+		["menu_id"]=> string(0) "" 
+		["echo"]=> bool(true) 
+		["fallback_cb"]=> string(12) "wp_page_menu" 
+		["before"]=> string(0) "" 
+		["after"]=> string(0) "" 
+		["link_before"]=> string(0) "" 
+		["link_after"]=> string(0) "" 
+		["items_wrap"]=> string(44) "%3$s" 
+		["item_spacing"]=> string(8) "preserve" 
+		["depth"]=> int(0) 
+		["walker"]=> object(top_menu_walker)#910 (4) { 
+			["tree_type"]=> array(3) { 
+				[0]=> string(9) "post_type" 
+				[1]=> string(8) "taxonomy" 
+				[2]=> string(6) "custom"
+			}
+			["db_fields"]=> array(2) { 
+				["parent"]=> string(16) "menu_item_parent" 
+				["id"]=> string(5) "db_id" 
+			} 
+			["max_pages"]=> int(1) 
+			["has_children"]=> bool(false) 
+		}
+		["theme_location"]=> string(11) "header-menu" 
+	}
+	
+start_lvl/end_lvl
+	$args
+		object(stdClass)#809 (18) {
+			["menu"]=> object(WP_Term)#832 (10) { 
+				["term_id"]=> int(3) 
+				["name"]=> string(9) "My Header" 
+				["slug"]=> string(9) "my-header" 
+				["term_group"]=> int(0) 
+				["term_taxonomy_id"]=> int(3) 
+				["taxonomy"]=> string(8) "nav_menu" 
+				["description"]=> string(0) "" 
+				["parent"]=> int(0) 
+				["count"]=> int(7) 
+				["filter"]=> string(3) "raw" 
+			} 
+			["container"]=> string(3) "div" 
+			["container_class"]=> string(24) "collapse navbar-collapse" 
+			["container_id"]=> string(22) "navbarSupportedContent" 
+			["container_aria_label"]=> string(0) "" 
+			["menu_class"]=> string(4) "menu" 
+			["menu_id"]=> string(0) "" 
+			["echo"]=> bool(true) 
+			["fallback_cb"]=> string(12) "wp_page_menu" 
+			["before"]=> string(0) "" 
+			["after"]=> string(0) "" 
+			["link_before"]=> string(0) "" 
+			["link_after"]=> string(0) "" 
+			["items_wrap"]=> string(40) "%3$s" 
+			["item_spacing"]=> string(8) "preserve" 
+			["depth"]=> int(0) 
+			["walker"]=> object(bootstrap_walker)#844 (4) { 
+				["tree_type"]=> array(3) { 
+					[0]=> string(9) "post_type" 
+					[1]=> string(8) "taxonomy" 
+					[2]=> string(6) "custom"
+				} 
+				["db_fields"]=> array(2) { 
+					["parent"]=> string(16) "menu_item_parent" 
+					["id"]=> string(5) "db_id"
+				} 
+				["max_pages"]=> int(1) 
+				["has_children"]=> bool(true) 
+			} 
+		["theme_location"]=> string(11) "header-menu"
+	}
