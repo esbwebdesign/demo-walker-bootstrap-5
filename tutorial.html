@@ -520,7 +520,7 @@ start_lvl/end_lvl
 			<p>With this in mind, we now have the tools to target any property of the menu items and sub-menus.  Let's start applying some classes.</p>
 			<h3>A Logic Puzzle</h3>
 			<p>Looking at our HTML, most <code>li</code> tags and <code>a</code> tags get classes, many of them more than one.  Some tags also need to get an ID.  Most list items need the class <code>nav-item</code> and most anchor tags need the class <code>nav-link</code>, so let's create an array of classes for list items and anchor tags, and add those entries in by default.</p>
-			<h4>Inside start_el</h4>
+			<h4>Inside start_el (Part 1)</h4>
 <pre>class bootstrap_walker extends Walker_Nav_Menu {
 	function start_el(&$output, $item, $depth = 0, $args = null, $id = 0) {
 		$li_class[] = 'nav-item';
@@ -536,7 +536,168 @@ start_lvl/end_lvl
 			<p>Your navbar should now look like this:</p>
 			<div class="text-center"><img src="images/screenshot-7.png" class="w-75" alt="Image of the navigation bar showing the correct text for each menu item and styled like Bootstrap menu items, but with an unordered list of sub-menu items below it"></div>
 			<p>All the links should now be clickable too.</p>
+			<p>Let's start going through our original navbar code and see what classes we need to apply.  The first entry had the code:</p>
+<pre>&lt;li class="nav-item"&gt;
+	&lt;a class="nav-link active" aria-current="page" href="#"&gt;Home&lt;/a&gt;
+&lt;/li&gt;</pre>
+			<p>The <code>li</code> is fine, but we want whatever link is active to get the <code>active</code> class, as well as to get some screen-reader support.</p>
+			<p>In addition, suppose we have a sub-page that's active.  We'd want the parent of that sub-page to be active, right?  Let's add another page called "Our Team" and add a link to it to our menu, like this:</p>
+			<div class="text-center"><img src="images/screenshot-8.png" class="w-75" alt="Image of the WordPress menu structure menu, showing a menu item linked to the 'Our Team' page nested below the 'About Us' page"></div>
+			<p>If the user was on the "Our Team" page, we'd want to set the "About Us" menu link to active, since one  of its children is active.  Fortunately, this is pretty easy.  Before the line that sets the <code>$link_tag</code> variable, add the code:</p>
+<pre>if($item->current || $item->current_item_ancestor) {
+	$a_class[] = 'active';
+}</pre>
+			<p>Or, in English: "If the current item is active, or if it's the ancestor of the current item, then add the class <code>active</code> to the array of classes."  If you refresh and click on the "Our Team" menu item, you should now see this:</p>
+			<div class="text-center"><img src="images/screenshot-9.png" class="w-75" alt="Image of the navigation bar with the menu items 'About Us' and 'Our Team' set to a darker color, indicating they are currently active links"></div>
+			<p>Finally, let's add the screen reader support.  We only want to add <code>aria-current="page"</code> to the current item, not to its parent.  Let's update this function to:</p>
 
+<textarea readonly class="w-100" rows="10">function start_el(&$output, $item, $depth = 0, $args = null, $id = 0) {
+	$li_class[] = 'nav-item';
+	$a_class[] = 'nav-link';
+	$aria = '';
+	
+	if($item->current || $item->current_item_ancestor) {
+		$a_class[] = 'active';
+		if($item->current) {
+			$aria = ' aria-current="page"';
+		}
+	}
+	
+	$link_tag = '<a class="' . implode(' ', $a_class) . $aria . '" href="' . $item->url . '">';
+	
+	$output .= '<li class="' . implode(' ', $li_class) . '">' . $link_tag . $item->title . '</a>';
+}</textarea>
+			<p>We need to add a placeholder variable (<code>$aria = '';</code>) so we don't get an 'Undefined variable' error (since we'll only get a value for <code>$aria</code> if our conditions are met).</p>
+			<p>Next, we want to add some extra spacing between top-level items.  Let's add this code:</p>
+<pre>if($item->menu_order != 1 && !$item->menu_item_parent) {
+	$li_class[] = 'ms-lg-5';
+}</pre>
+			<p>This says that if this isn't the first item in the menu (since we only want to add space <strong>between</strong> items, and if the item has no parents, then add a Bootstrap class to add a margin to the beginning of the item (the left, in a ltr layout).</p>
+			<p>Time to style our dropdown menus.  Let's look at our original code:</p>
+<pre>&lt;li class="nav-item dropdown ms-lg-5"&gt;
+	&lt;a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"&gt;W3 Schools&lt;/a&gt;</pre>
+			<p>There's a lot going on here.</p>
+			<ul><li>We need to add the <code>dropdown</code> class to our <code>li</code> tag</li>
+			<li>We need to add the <code>dropdown-toggle</code> code to our <code>a</code> tag</li>
+			<li>We need to make sure there's just a placholder location as the <code>href</code> value</li>
+			<li>We need to apply some other attributes to the <code>a</code> tag</li></ul>
+			<p>First, we'll add another placeholder variable to our <code>start_el</code> function:</p>
+			<pre>$a_dropdown = '';</pre>
+			<p>Next, we'll add this code:</p>
+<pre>if($args->walker->has_children && $depth == 0) {
+	$li_class[] = 'dropdown';
+	$a_class[] = 'dropdown-toggle';
+	$item->url = '#';
+	$a_dropdown = ' id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"';
+}</pre>
+			<p>In other words:</p>
+			<ul><li>Add <code>'dropdown'</code> to our array of list item classes</li>
+			<li>Add <code>'dropdown-toggle'</code> to our array of anchor classes</li>
+			<li>Override the current URL of this item, and set it to <code>'#'</code></li>
+			<li>Add the extra attributs we'll need for our anchor tag</li></ul>
+			<p>Finally, we'll update our <code>$link_tag</code> value</p>
+			<pre>$link_tag = '&lt;a class="' . implode(' ', $a_class) . $a_dropdown . $aria . '" href="' . $item-&gt;url . '"&gt;';</pre>
+			<p>If you refresh, you should see this:</p>
+			<div class="text-center"><img src="images/screenshot-10.png" class="w-75" alt="Image of the navigation bar with triangle dropdown togglers by items that have children.  The children are still visible as unordered lists below their parent menu items."></div>
+			<p>The toggles don't do anything yet, but that's okay--we'll need another function to help us with that.  We'll be coming back to <code>start_el</code>, but let's take a quick detour to get this dropdown list working properly.</p>
+			<p>Before we move on, here's our current code:</p>
+			<div class="row">
+				<div class="col-12 col-md-6">
+					<p><em>Code for </em><code>index.php</code></p>
+<textarea readonly class="w-100" rows="5">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+"http://www.w3.org/TR/html4/strict.dtd">
+
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+	</head>
+	<body>
+		<nav class="navbar navbar-expand-md navbar-light bg-light">
+			<div class="container">
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+					<?php
+					wp_nav_menu(array(
+						'theme_location' => 'header-menu',
+						'container' => 'div',
+						'container_class' => 'collapse navbar-collapse',
+						'container_id' => 'navbarSupportedContent',
+						'items_wrap' => '<ul class="navbar-nav ms-auto">%3$s</ul>',
+						'walker' => new bootstrap_walker()
+					));
+					?>
+			</div>
+		</nav>
+		<script type='text/javascript' src='//cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js' id='bootstrap-5-js'></script>
+	</body>
+</html>
+</textarea>
+				</div>
+				<div class="col-12 col-md-6">
+					<p><em>Code for </em><code>functions.php</code></p>
+<textarea readonly class="w-100" rows="5">
+<?php
+
+function theme_features() {
+	register_nav_menu('header-menu', 'Header Menu');
+}
+
+add_action('after_setup_theme', 'theme_features');
+
+class bootstrap_walker extends Walker_Nav_Menu {
+		function start_el(&$output, $item, $depth = 0, $args = null, $id = 0) {
+			$li_class[] = 'nav-item';
+			$a_class[] = 'nav-link';
+			$aria = '';
+			$a_dropdown = '';
+			
+			if($item->current || $item->current_item_ancestor) {
+				$a_class[] = 'active';
+				if($item->current) {
+					$aria = ' aria-current="page"';
+				}
+			}
+			
+			if($item->menu_order != 1 && !$item->menu_item_parent) {
+				$li_class[] = 'ms-lg-5';
+			}
+			
+			if($args->walker->has_children && $depth == 0) {
+				$li_class[] = 'dropdown';
+				$a_class[] = 'dropdown-toggle';
+				$item->url = '#';
+				$a_dropdown = ' id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false"';
+			}
+			
+			$link_tag = '<a class="' . implode(' ', $a_class) . $a_dropdown . $aria . '" href="' . $item->url . '">';
+			
+			$output .= '<li class="' . implode(' ', $li_class) . '">' . $link_tag . $item->title . '</a>';
+		}
+}
+
+?>
+</textarea>
+				</div>
+			</div>
+			<h4>Inside start_lvl</h4>
+			<p>Right now, our dropdowns don't work because the <code>ul</code> inside them don't have the right classes and ID.  Now, our code inside <code>functions.php</code> handles the outermost <code>ul</code>--that was set with the value of <code>items_wrap</code>--but, we need <code>start_lvl</code> to wrap any lower levels.</p>
+			<p>Our original code was:</p>
+			<pre>&lt;ul class="dropdown-menu" aria-labelledby="navbarDropdown"&gt;</pre>
+			<p>So, we want to apply this <em>only</em> to the first <code>ul</code> below our main menu items (since we only want to have to expand the menu once.  To do that, we need to add this code within <code>class top_menu_walker extends Walker_Nav_Menu</code>, but outside our <code>start_el</code> function.</p>
+<pre>function start_lvl(&$output, $depth = 0, $args = null) {
+	if(!$depth) {
+		$output .= '&lt;ul class="dropdown-menu" aria-labelledby="navbarDropdown"&gt;';
+	} else {
+		$output .= '&lt;ul&gt;';
+	}
+}</pre>
+			<p>This will say that if the depth is equal to 0 (that is, if it's the first <code>ul</code> after the top level, then use <code>&lt;ul class="dropdown-menu" aria-labelledby="navbarDropdown"&gt;</code>; otherwise, just use <code>&lt;ul&gt;</code>.</p>
+
+<!-- <textarea readonly class="w-100" rows="10"> -->
+<!-- </textarea> -->
 <!-- <textarea readonly class="w-100" rows="10"> -->
 <!-- </textarea> -->
 		</div>
@@ -544,13 +705,15 @@ start_lvl/end_lvl
 </html>
 
 
-<!-- wp_nav_menu(array( -->
-	<!-- 'theme_location' => 'header-menu', -->
-	<!-- 'container' => 'div', -->
-	<!-- 'container_class' => 'collapse navbar-collapse', -->
-	<!-- 'container_id' => 'navbarSupportedContent', -->
-	<!-- 'items_wrap' => '<ul class="navbar-nav ms-auto">%3$s' . "\t\t\t\t" . '</ul>', -->
-	<!-- 'walker' => new top_menu_walker(), -->
-	<!-- 'tab_depth' => 6 -->
-<!-- )); -->
-<!-- echo "\r\n"; -->
+			<!-- <div class="row"> -->
+				<!-- <div class="col-12 col-md-6"> -->
+					<!-- <p><em>Code for </em><code>index.php</code></p> -->
+<!-- <textarea readonly class="w-100" rows="5"> -->
+<!-- </textarea> -->
+				<!-- </div> -->
+				<!-- <div class="col-12 col-md-6"> -->
+					<!-- <p><em>Code for </em><code>functions.php</code></p> -->
+<!-- <textarea readonly class="w-100" rows="5"> -->
+<!-- </textarea> -->
+				<!-- </div> -->
+			<!-- </div> -->
