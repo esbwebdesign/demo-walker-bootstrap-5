@@ -1,6 +1,4 @@
-index.php
-demo_walker_theme/nav-reference.html
-!demo_walker_theme_hc/index.php
-!demo_walker_theme/index.php
-images
+/index.php
 tutorial.html
+images/
+demo_walker_theme/nav-reference.html
